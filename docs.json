@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
+  "theme": "maple",
   "name": "Sanwa",
   "colors": {
     "primary": "#16A34A",
@@ -42,5 +42,6 @@
      "perplexity",
      "mcp"
    ]
-  }
+  },
+  "description": "SANWA WRITING"
 }
