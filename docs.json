@@ -29,12 +29,6 @@
     "dark": "/logo/dark.svg"
   },
   "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
     "primary": {
       "type": "button",
       "label": "Dashboard",
@@ -43,14 +37,10 @@
   },
   "contextual": {
     "options": [
-     "copy",
      "view",
      "chatgpt",
-     "claude",
      "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
+     "mcp"
    ]
   }
 }
