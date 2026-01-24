@@ -1,0 +1,435 @@
+---
+title: 'core'
+---
+
+# OpenCode Core Package Architecture
+
+## 1. 包概述
+
+`packages/opencode/` 是 OpenCode 的核心包，包含了系统的核心功能实现、CLI 工具和服务端组件。它是整个 OpenCode 系统的基础，提供了 AI 辅助开发的核心能力。
+
+### 核心定位
+- 提供完整的 CLI 工具链
+- 实现 AI 代理系统
+- 管理会话和消息
+- 集成多种 AI 模型提供商
+- 实现语言服务器协议支持
+- 提供文件系统操作和工具集
+- 实现服务端 API
+
+## 2. 目录结构
+
+opencode 包采用模块化架构，各模块职责清晰：
+
+```
+opencode/src/
+├── acp/            # Agent Client Protocol 支持
+├── agent/          # AI 代理系统
+├── auth/           # 认证系统
+├── bun/            # Bun 运行时集成
+├── bus/            # 事件总线
+├── cli/            # 命令行界面
+├── command/        # 内置命令
+├── config/         # 配置管理
+├── env/            # 环境变量管理
+├── file/           # 文件系统操作
+├── flag/           # 功能标志
+├── format/         # 代码格式化
+├── global/         # 全局变量和路径
+├── id/             # 唯一标识符生成
+├── ide/            # IDE 集成
+├── installation/   # 安装管理
+├── lsp/            # 语言服务器协议
+├── mcp/            # Model Configuration Protocol
+├── opencode/       # 主包入口
+├── package/        # 包管理
+├── permission/     # 权限管理
+├── plugin/         # 插件系统
+├── project/        # 项目管理
+├── provider/       # AI 模型提供商
+├── pty/            # 伪终端
+├── question/       # 问题管理
+├── session/        # 会话管理
+├── server/         # 服务端实现
+├── shell/          # Shell 集成
+├── snapshot/       # 代码快照
+├── skill/          # 技能系统
+├── storage/        # 数据存储
+├── tool/           # 工具集
+├── util/           # 工具函数
+└── worktree/       # 工作树管理
+```
+
+## 3. 核心模块
+
+### 3.1 Agent 系统
+
+Agent 系统是 OpenCode 的核心，负责协调 AI 模型和工具执行。
+
+**主要组件**：
+- `agent.ts`: 代理核心实现
+- 支持多种内置代理（build、plan）
+
+**核心能力**：
+- 代理执行计划和任务
+- 管理工具调用和权限
+- 协调多步操作
+
+### 3.2 Session 管理
+
+Session 模块负责管理用户会话和消息历史。
+
+**主要组件**：
+- `session/index.ts`: 会话核心
+- `session/message.ts`: 消息管理
+- `session/message-v2.ts`: 消息格式 V2
+- `session/prompt.ts`: 提示处理
+- `session/revert.ts`: 消息回滚
+
+**核心能力**：
+- 创建和管理会话
+- 存储和检索消息历史
+- 支持消息回滚和恢复
+- 处理用户提示和 AI 响应
+
+### 3.3 Provider 集成
+
+Provider 模块负责与各种 AI 模型提供商集成。
+
+**主要组件**：
+- `provider/provider.ts`: 提供商核心
+- `provider/models.ts`: 模型管理
+- `provider/auth.ts`: 认证处理
+
+**核心能力**：
+- 支持多种 AI 模型（Claude、OpenAI、Google 等）
+- 统一模型调用接口
+- 处理模型认证
+- 管理模型配置
+
+### 3.4 Tool 系统
+
+Tool 系统提供了丰富的工具集，供 AI 代理使用。
+
+**主要组件**：
+- `tool/tool.ts`: 工具核心
+- `tool/bash.ts`: Shell 命令执行
+- `tool/edit.ts`: 文件编辑
+- `tool/lsp.ts`: LSP 工具
+- `tool/read.ts`: 文件读取
+- `tool/write.ts`: 文件写入
+
+**核心能力**：
+- 提供 20+ 种内置工具
+- 支持工具调用和权限管理
+- 实现文件系统操作
+- 集成 LSP 功能
+- 支持网络搜索和代码执行
+
+### 3.5 Server 实现
+
+Server 模块实现了 OpenCode 的服务端 API。
+
+**主要组件**：
+- `server/server.ts`: 服务器核心
+- `server/routes/`: API 路由
+
+**核心能力**：
+- 实现 RESTful API
+- 支持 WebSocket 和 SSE
+- 处理会话和消息请求
+- 管理文件和项目操作
+- 提供 OpenAPI 文档
+
+### 3.6 Storage 系统
+
+Storage 模块实现了数据持久化存储。
+
+**主要组件**：
+- `storage/storage.ts`: 存储核心
+
+**核心能力**：
+- 基于文件系统的存储
+- 支持数据迁移
+- 提供 CRUD 操作
+- 实现并发安全
+
+### 3.7 CLI 工具
+
+CLI 模块提供了命令行界面。
+
+**主要组件**：
+- `cli/index.ts`: CLI 核心
+- `cli/cmd/`: 命令实现
+- `cli/tui/`: 终端用户界面
+
+**核心能力**：
+- 提供 20+ 种命令
+- 实现 TUI 界面
+- 支持会话管理
+- 提供服务器启动和管理
+
+### 3.8 LSP 支持
+
+LSP 模块提供了语言服务器协议支持。
+
+**主要组件**：
+- `lsp/index.ts`: LSP 核心
+- `lsp/client.ts`: LSP 客户端
+- `lsp/server.ts`: LSP 服务器
+
+**核心能力**：
+- 代码补全
+- 定义跳转
+- 引用查找
+- 代码诊断
+- 格式化支持
+
+## 4. 系统架构
+
+OpenCode 核心包采用分层架构设计：
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   接口层         │     │   核心服务层     │     │   基础设施层     │
+│                 │     │                 │     │                 │
+│ ┌─────────────┐ │     │ ┌─────────────┐ │     │ ┌─────────────┐ │
+│ │     CLI     │ │     │ │   Agent     │ │     │ │  事件总线    │ │
+│ └─────────────┘ │     │ └─────────────┘ │     │ └─────────────┘ │
+│ ┌─────────────┐ │     │ ┌─────────────┐ │     │ ┌─────────────┐ │
+│ │    Server   │ │     │ │  Session    │ │     │ │  配置管理    │ │
+│ └─────────────┘ │     │ └─────────────┘ │     │ └─────────────┘ │
+│ ┌─────────────┐ │     │ ┌─────────────┐ │     │ ┌─────────────┐ │
+│ │     TUI     │ │     │ │   Provider  │ │     │ │  文件系统    │ │
+│ └─────────────┘ │     │ └─────────────┘ │     │ └─────────────┘ │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+```
+
+### 4.1 数据流
+
+1. **用户输入**：通过 CLI、TUI 或 API 接收用户输入
+2. **命令处理**：CLI 或 Server 解析并处理命令
+3. **会话管理**：创建或加载会话
+4. **代理执行**：Agent 系统协调 AI 模型和工具
+5. **模型调用**：通过 Provider 模块调用 AI 模型
+6. **工具执行**：执行必要的文件系统或其他工具操作
+7. **结果返回**：将结果返回给用户
+
+### 4.2 事件机制
+
+使用事件总线（Bus）实现模块间通信：
+- 会话创建/更新事件
+- 消息添加/更新事件
+- 工具调用事件
+- 状态变更事件
+
+## 5. 核心功能实现
+
+### 5.1 AI 代理执行流程
+
+```typescript
+// 代理执行简化流程
+async function executeAgent(sessionID: string, prompt: string) {
+  // 1. 创建会话和消息
+  const session = await Session.get(sessionID)
+  const userMessage = await MessageV2.create({
+    sessionID,
+    role: "user",
+    parts: [{ type: "text", text: prompt }]
+  })
+  
+  // 2. 选择代理
+  const agent = await Agent.get(session.agent || "build")
+  
+  // 3. 调用 AI 模型
+  const response = await agent.process(userMessage)
+  
+  // 4. 处理 AI 响应
+  const assistantMessage = await MessageV2.create({
+    sessionID,
+    role: "assistant",
+    parentID: userMessage.id,
+    parts: response.parts
+  })
+  
+  // 5. 执行工具调用
+  for (const part of response.parts) {
+    if (part.type === "tool") {
+      await Tool.execute(part)
+    }
+  }
+  
+  return assistantMessage
+}
+```
+
+### 5.2 会话管理
+
+```typescript
+// 会话管理核心功能
+namespace Session {
+  // 创建会话
+  export const create = async (input?: { parentID?: string; title?: string }) => {
+    const session = await createNext({
+      directory: Instance.directory,
+      parentID: input?.parentID,
+      title: input?.title
+    })
+    return session
+  }
+  
+  // 获取会话消息
+  export const messages = async (input: { sessionID: string; limit?: number }) => {
+    const result = [] as MessageV2.WithParts[]
+    for await (const msg of MessageV2.stream(input.sessionID)) {
+      if (input.limit && result.length >= input.limit) break
+      result.push(msg)
+    }
+    result.reverse()
+    return result
+  }
+  
+  // 会话消息流
+  export function* list() {
+    const project = Instance.project
+    for (const item of await Storage.list(["session", project.id])) {
+      yield Storage.read<Info>(item)
+    }
+  }
+}
+```
+
+### 5.3 工具执行
+
+```typescript
+// 工具执行核心
+namespace Tool {
+  // 注册工具
+  export const register = (tool: Tool) => {
+    tools.set(tool.id, tool)
+  }
+  
+  // 执行工具
+  export const execute = async (part: ToolPart) => {
+    const tool = tools.get(part.tool)
+    if (!tool) {
+      throw new Error(`Tool ${part.tool} not found`)
+    }
+    
+    const result = await tool.execute(part.state.input)
+    return result
+  }
+}
+```
+
+## 6. 技术栈
+
+| 技术/框架 | 用途 | 版本 |
+|----------|------|------|
+| TypeScript | 主要开发语言 | 5.x |
+| Bun | 运行时和包管理器 | 1.x |
+| Hono | Web 框架 | 4.x |
+| Zod | 类型验证 | 3.x |
+| XDG | 目录结构 | - |
+| SolidJS | TUI 界面 | 1.x |
+
+## 7. 核心 API
+
+### 7.1 CLI 命令
+
+```bash
+# 启动服务器
+opencode serve
+
+# 启动 Web 应用
+opencode web
+
+# 运行 TUI 界面
+opencode tui
+
+# 管理会话
+opencode session list
+opencode session create
+
+# 管理模型
+opencode models list
+opencode models set
+
+# 管理代理
+opencode agent list
+opencode agent set
+```
+
+### 7.2 服务端 API
+
+```
+# 会话管理
+GET  /session              # 列出会话
+POST /session              # 创建会话
+GET  /session/:sessionID   # 获取会话
+DELETE /session/:sessionID # 删除会话
+
+# 消息管理
+GET  /session/:sessionID/message      # 获取会话消息
+POST /session/:sessionID/message      # 发送消息
+GET  /session/:sessionID/message/:id  # 获取消息
+
+# 工具管理
+GET  /tool        # 列出工具
+
+# 代理管理
+GET  /agent       # 列出代理
+```
+
+## 8. 扩展能力
+
+### 8.1 插件系统
+
+OpenCode 支持通过插件扩展功能：
+- 自定义工具
+- 新的 AI 代理
+- 模型提供商集成
+- IDE 集成扩展
+
+### 8.2 工具扩展
+
+可以通过注册新工具扩展 OpenCode 的能力：
+
+```typescript
+// 自定义工具示例
+const MyTool: Tool = {
+  id: "my-tool",
+  name: "My Custom Tool",
+  description: "My custom tool description",
+  parameters: z.object({
+    input: z.string()
+  }),
+  execute: async (input) => {
+    // 工具实现
+    return { output: `Processed: ${input.input}` }
+  }
+}
+
+// 注册工具
+Tool.register(MyTool)
+```
+
+## 9. 性能与扩展性
+
+### 9.1 性能优化
+- 使用 Bun 运行时提高性能
+- 懒加载模块减少启动时间
+- 缓存常用数据
+- 异步处理长时间运行的操作
+
+### 9.2 扩展性设计
+- 模块化架构便于扩展
+- 插件系统支持第三方扩展
+- 多模型提供商支持
+- 可扩展的工具系统
+
+## 10. 总结
+
+`packages/opencode/` 是 OpenCode 的核心包，提供了系统的核心功能实现。它采用模块化架构设计，各模块职责清晰，便于维护和扩展。核心能力包括 AI 代理系统、会话管理、多模型支持、工具系统、LSP 支持等。
+
+通过这个核心包，OpenCode 实现了一个功能强大的 AI 辅助开发工具，支持多种交互方式和扩展能力。
