@@ -81,6 +81,12 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "opencode",
+        "pages": [
+          "opencode/arch"
+        ]
       }
     ]
   },
