@@ -19,6 +19,7 @@
       {
         "tab": "inference",
         "pages": [
+          "inference/file",
           "inference/basic-knowledge"
         ]
       },
@@ -28,16 +29,13 @@
           "opencode/arch"
         ]
       },
-
-
-       {
+      {
         "tab": "verify",
         "hidden": true,
         "pages": [
           "dcbe6b8fd465e18db8809e27c61dead4.txt"
         ]
       }
-      
     ]
   },
   "logo": {
