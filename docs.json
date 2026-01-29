@@ -13,6 +13,7 @@
       {
         "tab": "About Me",
         "pages": [
+          "about-me/file",
           "about-me/me"
         ]
       },
@@ -35,6 +36,12 @@
         "hidden": true,
         "pages": [
           "dcbe6b8fd465e18db8809e27c61dead4.txt"
+        ]
+      },
+      {
+        "tab": "model",
+        "pages": [
+          "model/sft"
         ]
       }
     ]
