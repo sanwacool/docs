@@ -1,0 +1,29 @@
+---
+title: "FP8 Attention vs w8a8"
+---
+
+### 概念整理
+
+1. **W8A8 是“全模型量化策略”；FP8 Attention 是“只针对 Attention 的高价值 kernel 优化”**
+2. **w8A8 作用范围： **Attention 里的 QKV / O； MLP 的 FC1 / FC2
+3. FP8 Attention： 只把 **Attention 里的关键算子 **QK^T、Softmax 前后、V projection   换成 FP8（E4M3 / E5M2）
+4. KV Cache 写入的数据通常以 FP16/BF16 存储（为了稳定性），即使前向计算用了 int8，写回还是可能升回 FP16。
+
+#### prefill过程阶段
+
+1. Linear 投影（Q ，K，V） ： gemm
+2. reshape/transposes（把 Q/K/V 拆成 heads）
+3. 计算相似度矩阵 S = Q × Kᵀ（未归一化）
+4. Softmax：S -\> A（注意力权重矩阵）， A = softmax(S)
+5. 注意力上下文 O = A × V
+6. 输出线性投影（Out-Projection） + residual
+
+#### decode过程阶段
+
+1. Linear 投影 Q/K/V
+2. reshape/transposes
+3. S = Q × Kᵀ
+   1. 这里要加载**整个历史 K_cache**（长度 L），这一步对 HBM 带宽极度敏感：每 step 都要大量读取 K（和后续对 V 的读取）。这使得 decode 极度 **memory-bound**（HBM 带宽 dominate），尤其当 L 很长时
+4. Softmax -\> A
+5. O = A × V
+6. Out projection + write new K/V ： 输出后要对当前 token 计算新的 K/V 并 append 到 KV cache（写入 HBM）

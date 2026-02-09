@@ -20,6 +20,7 @@
       {
         "tab": "inference",
         "pages": [
+          "inference/untitled-page",
           "inference/file",
           "inference/basic-knowledge"
         ]
@@ -42,6 +43,12 @@
         "tab": "model",
         "pages": [
           "model/sft"
+        ]
+      },
+      {
+        "tab": "竞品学习",
+        "pages": [
+          "cc-cowork"
         ]
       }
     ]
