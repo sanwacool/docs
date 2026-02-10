@@ -1,0 +1,108 @@
+---
+title: "GPU 利用率治理"
+---
+
+### 名词解释
+
+#### `HTTP → tokenization → routing → batching → GPU enqueue → kernel` 是啥？
+
+##### ① HTTP
+
+- 用户请求到达服务（FastAPI / Triton / 自研网关）
+- 还只是字符串
+
+##### ② tokenization
+
+- `"你是谁"` → `[101, 2034, 3221, 102]`
+- BPE / SentencePiece
+
+##### ③ routing
+
+- 这个请求该去哪张卡？
+- 哪个模型实例？
+- 哪个 worker？
+
+##### ④ batching
+
+- 把多个请求拼成一个 batch
+- 决定：
+  - batch size
+  - padding
+  - attention mask
+
+##### ⑤ GPU enqueue
+
+- 把 tensor 拷到 GPU
+- 调用 cudaLaunchKernel
+
+##### ⑥ kernel
+
+- GEMM / attention / softmax 真正跑起来
+
+#### batch_size
+
+- batch_size  = 一次 GPU kernel 里同时算多少个请求/token
+
+#### sampling（top-k / top-p）是 CPU-heavy
+
+sampling 做的事是：
+
+1. 拿 logits（几万维）
+2. 排序 / 取 top-k
+3. 累加概率
+4. 随机采样
+
+很多系统：
+
+- logits 从 GPU 拷回 CPU
+- 在 CPU 做排序
+
+👉 每个 token 都做一次
+
+#### warp
+
+- warp 是 什么： GPU 最小执行单位 = 32 个线程
+- warp 少意味着：同时在跑的线程组少；SM 里面很多执行单元空着
+
+#### occupancy
+
+- occupancy = SM 上“活跃 warp 数 / 最大可支持 warp 数”
+
+#### kernel
+
+- kernel = GPU 上跑的一段函数；比如一次 GEMM，一次 attention，一次 softmax
+
+#### cuda kernel launch
+
+- cpu 对 gpu 说：“请你执行这段 kernel”
+- gpu 不能自己决定干什么，每一个 kernel，都是 cpu 启动的
+- 一次 kernel launch 包含： 参数打包，kernel 配置，命令写入 GPU command queue，gpu 解析命令
+
+#### prefill和decode 的kernel launch
+
+prefill
+
+1. QKV projection
+   1. kernel：大 gemm； 特点：batch x seq_len 很大，tensor core 满载；nsight 是又宽又长的矩形
+2. Attention
+   1. kernel 组合：QKᵀ GEMM、softmax、attention x V GEMM
+3. MLP
+   1. kernel：2 个大 GEMM
+4. LayerNorm
+5. 总结：prefill 的 kernel 数少，kernel 时长：长，GPU 利用率高
+
+decode
+
+1. embedding
+2. 每一层transformer
+   1. QKV Projection  小 GEMM；tensor core 利用率低；launch 很多
+   2. Attention：  memory-bound
+   3. MLP   launch 次数多，算法吃不满
+   4. layerNorm
+3. sampling
+
+   通常在 CPU
+
+总结
+
+- decode 阶段 kernel 数非常多；所以一般把 decode 阶段的 batch_size 设置很大，比如 400；

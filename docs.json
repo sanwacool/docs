@@ -20,6 +20,7 @@
       {
         "tab": "inference",
         "pages": [
+          "inference/gpu_util",
           "inference/concept",
           "inference/file",
           "inference/basic-knowledge"
