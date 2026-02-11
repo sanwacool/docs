@@ -1,0 +1,53 @@
+---
+title: "start"
+---
+
+这两个命令分别用于启动 OpenCode 的不同组件：
+
+## 1. `bun run --cwd packages/app dev`
+
+**作用**：启动前端开发服务器
+- 运行在 `packages/app` 目录
+- 启动 Vite 开发服务器
+- 提供 Web 界面
+- 默认端口通常是 3000 或 5173
+
+**功能**：
+- 提供前端界面
+- 热重载
+- 开发环境配置
+
+## 2. `bun run --cwd packages/opencode src/index.ts serve`
+
+**作用**：启动后端服务器
+- 运行在 `packages/opencode` 目录
+- 启动 OpenCode 核心服务器
+- 默认端口是 4096
+
+**功能**：
+- 提供 API 服务
+- 处理 AI 模型调用
+- 管理会话和消息
+- 执行文件系统操作
+- 协调工具调用
+
+## 为什么需要同时运行
+
+OpenCode 采用 **客户端-服务器架构**：
+- 前端（`packages/app`）：用户界面，负责展示和交互
+- 后端（`packages/opencode`）：核心功能，处理业务逻辑和 AI 交互
+
+前端需要连接后端服务器来：
+- 获取会话数据
+- 发送用户输入
+- 接收 AI 响应
+- 执行文件操作
+- 调用工具
+
+## 执行流程
+
+1. 首先启动后端服务器：`bun run --cwd packages/opencode src/index.ts serve`
+2. 然后启动前端开发服务器：`bun run --cwd packages/app dev`
+3. 打开前端页面，即可与 OpenCode 进行交互
+
+后端服务器是必需的，因为所有核心功能都在后端实现，前端只是一个界面层。

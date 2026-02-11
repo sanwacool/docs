@@ -29,6 +29,7 @@
       {
         "tab": "opencode",
         "pages": [
+          "opencode/start",
           "opencode/core",
           "opencode/arch"
         ]
